@@ -7,7 +7,7 @@ own engine built on OpenGL.
 Requirements
 ------------
 
-- ruby 2.5.5
+- ruby 2.6.5
 - gem: opengl-bindings
 - glfw
 
