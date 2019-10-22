@@ -7,6 +7,7 @@ include GLFW
 
 class Window
   attr_reader :title, :height, :width, :vSync, :handle
+  attr_reader :error_callback, :key_callback
   def initialize title, width, height, vSync
     @title = title
     @height = height
@@ -15,21 +16,21 @@ class Window
   end
 
   def init
-    error_callback = GLFW::create_callback(:GLFWerrorfun) do |int, message|
+    @error_callback = GLFW::create_callback(:GLFWerrorfun) do |int, message|
       STDERR.puts "GLFW ERROR: #{int} -- #{message}"
     end
-    glfwSetErrorCallback(error_callback)
+    glfwSetErrorCallback(@error_callback)
 
     @glfw_init = glfwInit() == GLFW_TRUE
 
-    key_callback = GLFW::create_callback(:GLFWkeyfun) do |wind, key, sccd, act, mod|
+    @key_callback = GLFW::create_callback(:GLFWkeyfun) do |wind, key, sccd, act, mod|
       if key == GLFW_KEY_ESCAPE && act = GLFW_PRESS
         glfwSetWindowShouldClose(wind, GLFW_TRUE)
       end
     end
 
     @handle = glfwCreateWindow(@width, @height, @title, nil, nil)
-    glfwSetKeyCallback(@handle, key_callback)
+    glfwSetKeyCallback(@handle, @key_callback)
   end
 
   def glfw_init?

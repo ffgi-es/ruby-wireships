@@ -29,11 +29,9 @@ describe Window do
     end
     
     it "should have set an error callback" do
-      error_callback = GLFW::create_callback(:GLFWerrorfun) do |i,mess|
-        puts "GLFW ERROR: #{i} -- #{mess}"
-      end
-      ptr = glfwSetErrorCallback(error_callback)
+      ptr = glfwSetErrorCallback(@window.error_callback)
       expect(ptr.to_i).not_to eq 0
+      expect(ptr.to_i).to eq @window.error_callback.to_i
     end
 
     it "should successfully initiate GLFW" do
@@ -45,9 +43,9 @@ describe Window do
     end
 
     it "should have set a key callback" do
-      key_callback = GLFW::create_callback(:GLFWkeyfun) { }
-      ptr = glfwSetKeyCallback(@window.handle, key_callback)
+      ptr = glfwSetKeyCallback(@window.handle, @window.key_callback)
       expect(ptr.to_i).not_to eq 0
+      expect(ptr.to_i).to eq @window.key_callback.to_i
     end
       
     it "should not have caused an error" do
