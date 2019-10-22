@@ -39,6 +39,16 @@ describe Window do
     it "should successfully initiate GLFW" do
       expect(@window.glfw_init?).to be true
     end
+
+    it "should have created a window" do
+      expect(@window.handle).to_not be_nil
+    end
+
+    it "should have set a key callback" do
+      key_callback = GLFW::create_callback(:GLFWkeyfun) { }
+      ptr = glfwSetKeyCallback(@window.handle, key_callback)
+      expect(ptr.to_i).not_to eq 0
+    end
       
     it "should not have caused an error" do
       err_string = ''
