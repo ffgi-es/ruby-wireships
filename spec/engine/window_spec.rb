@@ -9,16 +9,18 @@ describe Window do
     expect(@window).to be_instance_of Window
   end
 
-  it "should have an init method" do
-    expect(@window).to respond_to(:init)
-  end
+  context "checking it has the expected methods" do
+    it "should have an init method" do
+      expect(@window).to respond_to(:init)
+    end
 
-  it "should have a method :glfw_init?" do
-    expect(@window).to respond_to(:glfw_init?)
-  end
+    it "should have a method to check glfw initialised" do
+      expect(@window).to respond_to(:glfw_init?)
+    end
 
-  it "should have a method :close" do
-    expect(@window).to respond_to(:close)
+    it "should have a close method" do
+      expect(@window).to respond_to(:close)
+    end
   end
 
   describe "#init" do
@@ -26,7 +28,7 @@ describe Window do
       @window.init
     end
     
-    it "should have already set an error callback" do
+    it "should have set an error callback" do
       error_callback = GLFW::create_callback(:GLFWerrorfun) do |i,mess|
         puts "GLFW ERROR: #{i} -- #{mess}"
       end
