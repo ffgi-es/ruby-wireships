@@ -1,10 +1,4 @@
-require_relative '../../lib/engine/window'
-require 'opengl'
-require 'glfw'
-
-GLFW.load_lib()
-
-include GLFW
+require 'window'
 
 describe Window do
   before :all do

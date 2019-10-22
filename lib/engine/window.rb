@@ -1,3 +1,10 @@
+require 'opengl'
+require 'glfw'
+
+GLFW.load_lib()
+
+include GLFW
+
 class Window
   def initialize title, width, height, vSync
     @title = title
