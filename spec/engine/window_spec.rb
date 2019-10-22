@@ -25,6 +25,14 @@ describe Window do
     before :all do
       @window.init
     end
+    
+    it "should have already set an error callback" do
+      error_callback = GLFW::create_callback(:GLFWerrorfun) do |i,mess|
+        puts "GLFW ERROR: #{i} -- #{mess}"
+      end
+      ptr = glfwSetErrorCallback(error_callback)
+      expect(ptr.to_i).not_to eq 0
+    end
 
     it "should successfully initiate GLFW" do
       expect(@window.glfw_init?).to be true

@@ -14,6 +14,11 @@ class Window
   end
 
   def init
+    error_callback = GLFW::create_callback(:GLFWerrorfun) do |int, message|
+      STDERR.puts "GLFW ERROR: #{int} -- #{message}"
+    end
+    glfwSetErrorCallback(error_callback)
+
     @glfw_init = glfwInit() == GLFW_TRUE
   end
 
