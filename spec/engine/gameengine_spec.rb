@@ -7,7 +7,9 @@ describe GameEngine do
     @height = 600
     @v_sync = true
 
-    @gameengine = GameEngine.new @title, @width, @height, @v_sync
+    @test_logic = double 'logic'
+
+    @gameengine = GameEngine.new @title, @width, @height, @v_sync, @test_logic
   end
 
   after :all do
@@ -57,7 +59,8 @@ describe GameEngine do
   end
 
   describe "#init" do
-    before :all do
+    it "should call key callbac" do
+      expect(@gameengine.game_logic).to receive(:key_callback)
       @gameengine.init
     end
 
