@@ -2,7 +2,11 @@ require 'window'
 
 describe Window do
   before :all do
-    @window = Window.new "Test", 600, 600, true
+    @title = "Test"
+    @width = 600
+    @height = 400
+    @v_sync = true
+    @window = Window.new @title, @width, @height, @v_sync
   end
 
   it "should be an instance of window" do
@@ -20,6 +24,24 @@ describe Window do
 
     it "should have a close method" do
       expect(@window).to respond_to(:close)
+    end
+  end
+
+  context "checking it has expected attributes" do
+    it "should have the title given to the constructor" do
+      expect(@window.title).to eq @title
+    end
+
+    it "should be #{@width} wide" do
+      expect(@window.width).to eq @width
+    end
+
+    it "should be #{@height} high" do
+      expect(@window.height).to eq @height
+    end
+
+    it "should have v_sync set to #{@v_sync}" do
+      expect(@window.v_sync).to eq @v_sync
     end
   end
 

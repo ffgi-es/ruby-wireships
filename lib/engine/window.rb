@@ -6,13 +6,13 @@ GLFW.load_lib()
 include GLFW
 
 class Window
-  attr_reader :title, :height, :width, :vSync, :handle
+  attr_reader :title, :height, :width, :v_sync, :handle
   attr_reader :error_callback, :key_callback
-  def initialize title, width, height, vSync
+  def initialize title, width, height, v_sync
     @title = title
     @height = height
     @width = width
-    @vSync = vSync
+    @v_sync = v_sync
   end
 
   def init
