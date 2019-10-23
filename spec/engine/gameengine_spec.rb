@@ -6,7 +6,12 @@ describe GameEngine do
     @width = 600
     @height = 600
     @v_sync = true
+
     @gameengine = GameEngine.new @title, @width, @height, @v_sync
+  end
+
+  after :all do
+    @gameengine.close
   end
 
   it "should be an instance of GameEngine" do
@@ -48,6 +53,26 @@ describe GameEngine do
 
     it "should respond to :run" do
       expect(@gameengine).to respond_to(:run)
+    end
+  end
+
+  describe "#init" do
+    before :all do
+      @gameengine.init
+    end
+
+    it "should have initialised the window" do
+      expect(@gameengine.window.handle).to_not be_nil
+    end
+  end
+
+  describe "#close" do
+    before :all do
+      @gameengine.close
+    end
+
+    it "should have destroyed the window" do
+      expect(@gameengine.window.handle).to be_nil
     end
   end
 end

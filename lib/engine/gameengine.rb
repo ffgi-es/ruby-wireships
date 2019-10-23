@@ -10,8 +10,10 @@ class GameEngine
   end
 
   def init
+    @window.init
   end
 
   def close
+    @window.close
   end
 end
