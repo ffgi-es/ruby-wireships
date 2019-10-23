@@ -90,6 +90,10 @@ describe Window do
       expect(@window.glfw_init?).to be false
     end
 
+    it "should have removed the window handle" do
+      expect(@window.handle).to be_nil
+    end
+
     it "should not have caused an error" do
       err_string = ''
       err = glfwGetError(err_string)
