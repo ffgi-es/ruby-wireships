@@ -15,14 +15,18 @@ class Window
     @v_sync = v_sync
   end
 
-  def init
+  def init &key_callback
     setErrorCallback
 
     @glfw_init = glfwInit() == GLFW_TRUE
 
     @handle = glfwCreateWindow(@width, @height, @title, nil, nil)
 
-    setKeyCallback
+    if block_given?
+      setKeyCallback &key_callback
+    else
+      setKeyCallback
+    end
   end
 
   def glfw_init?
@@ -49,6 +53,7 @@ class Window
       if key == GLFW_KEY_ESCAPE && act = GLFW_PRESS
         glfwSetWindowShouldClose(wind, GLFW_TRUE)
       end
+      yield wind, key, sccd, act, mod
     end
     glfwSetKeyCallback(@handle, @key_callback)
   end
