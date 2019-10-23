@@ -1,102 +1,67 @@
 require 'window'
 
-describe Window do
+RSpec.describe Window do
   before :all do
-    @title = "Window Test"
-    @width = 600
-    @height = 400
-    @v_sync = true
-    @window = Window.new @title, @width, @height, @v_sync
+    @title, @width, @height, @v_sync = "Window Test", 600, 400, true
+    @window = Window.new(@title, @width, @height, @v_sync)
   end
+  subject { @window }
 
-  after :all do
-    @window.close
-  end
+  it { is_expected.to be_instance_of Window }
 
-  it "should be an instance of window" do
-    expect(@window).to be_instance_of Window
-  end
+  it { is_expected.to have_attributes(title: @title) }
+  it { is_expected.to have_attributes(width: @width) }
+  it { is_expected.to have_attributes(height: @height) }
+  it { is_expected.to have_attributes(v_sync: @v_sync) }
 
-  context "checking it has expected attributes" do
-    it "should have the title given to the constructor" do
-      expect(@window.title).to eq @title
-    end
-
-    it "should be #{@width} wide" do
-      expect(@window.width).to eq @width
-    end
-
-    it "should be #{@height} high" do
-      expect(@window.height).to eq @height
-    end
-
-    it "should have v_sync set to #{@v_sync}" do
-      expect(@window.v_sync).to eq @v_sync
-    end
-  end
-
-  context "checking it has the expected methods" do
-    it "should have an init method" do
-      expect(@window).to respond_to(:init)
-    end
-
-    it "should have a method to check glfw initialised" do
-      expect(@window).to respond_to(:glfw_init?)
-    end
-
-    it "should have a close method" do
-      expect(@window).to respond_to(:close)
-    end
-  end
+  it { is_expected.to respond_to(:init) }
+  it { is_expected.to respond_to(:glfw_init?) }
+  it { is_expected.to respond_to(:close) }
 
   describe "#init" do
-    before :all do
-      @window.init
-    end
-    
+    before(:all) { @window.init }
+
+    after(:each) { |example| @window.close if example.exception }
+
     it "should have set an error callback" do
-      ptr = glfwSetErrorCallback(@window.error_callback)
+      ptr = glfwSetErrorCallback(subject.error_callback)
       expect(ptr.to_i).not_to eq 0
-      expect(ptr.to_i).to eq @window.error_callback.to_i
+      expect(ptr.to_i).to eq subject.error_callback.to_i
     end
 
     it "should successfully initiate GLFW" do
-      expect(@window.glfw_init?).to be true
+      expect(subject.glfw_init?).to be true
     end
 
     it "should have created a window" do
-      expect(@window.handle).to_not be_nil
+      expect(subject.handle).to_not be_nil
     end
 
     it "should have set a key callback" do
-      ptr = glfwSetKeyCallback(@window.handle, @window.key_callback)
+      ptr = glfwSetKeyCallback(subject.handle, subject.key_callback)
       expect(ptr.to_i).not_to eq 0
-      expect(ptr.to_i).to eq @window.key_callback.to_i
+      expect(ptr.to_i).to eq subject.key_callback.to_i
     end
       
     it "should not have caused an error" do
-      err_string = ''
-      err = glfwGetError(err_string)
+      err = glfwGetError('')
       expect(err).to eq 0
     end
   end
 
   describe "#close" do
-    before :all do
-      @window.close
-    end
+    before(:all) { @window.close }
 
     it "should successfully terminate GLFW" do
-      expect(@window.glfw_init?).to be false
+      expect(subject.glfw_init?).to be false
     end
 
     it "should have removed the window handle" do
-      expect(@window.handle).to be_nil
+      expect(subject.handle).to be_nil
     end
 
     it "should not have caused an error" do
-      err_string = ''
-      err = glfwGetError(err_string)
+      err = glfwGetError('')
       expect(err).to eq 0
     end
   end
