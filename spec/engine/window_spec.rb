@@ -9,22 +9,12 @@ describe Window do
     @window = Window.new @title, @width, @height, @v_sync
   end
 
-  it "should be an instance of window" do
-    expect(@window).to be_instance_of Window
+  after :all do
+    @window.close
   end
 
-  context "checking it has the expected methods" do
-    it "should have an init method" do
-      expect(@window).to respond_to(:init)
-    end
-
-    it "should have a method to check glfw initialised" do
-      expect(@window).to respond_to(:glfw_init?)
-    end
-
-    it "should have a close method" do
-      expect(@window).to respond_to(:close)
-    end
+  it "should be an instance of window" do
+    expect(@window).to be_instance_of Window
   end
 
   context "checking it has expected attributes" do
@@ -42,6 +32,20 @@ describe Window do
 
     it "should have v_sync set to #{@v_sync}" do
       expect(@window.v_sync).to eq @v_sync
+    end
+  end
+
+  context "checking it has the expected methods" do
+    it "should have an init method" do
+      expect(@window).to respond_to(:init)
+    end
+
+    it "should have a method to check glfw initialised" do
+      expect(@window).to respond_to(:glfw_init?)
+    end
+
+    it "should have a close method" do
+      expect(@window).to respond_to(:close)
     end
   end
 

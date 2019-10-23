@@ -30,9 +30,10 @@ class Window
   end
 
   def close
-    glfwDestroyWindow(@handle)
+    glfwDestroyWindow(@handle) unless @handle.nil?
     glfwTerminate()
     @glfw_init = false
+    @handle = nil
   end
 
   private
