@@ -2,7 +2,7 @@ require 'window'
 
 describe Window do
   before :all do
-    @title = "Test"
+    @title = "Window Test"
     @width = 600
     @height = 400
     @v_sync = true
