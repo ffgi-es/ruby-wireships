@@ -1,5 +1,34 @@
 require 'window'
 
+RSpec.shared_examples "init examples" do
+  it "should have set an error callback" do
+    ptr = glfwSetErrorCallback(subject.error_callback)
+    expect(ptr.to_i).not_to eq 0
+    expect(ptr.to_i).to eq subject.error_callback.to_i
+  end
+
+  it "should successfully initiate GLFW" do
+    expect(subject.glfw_init?).to be true
+  end
+
+  it "should have created a window" do
+    expect(subject.handle).to_not be_nil
+  end
+
+  it "should have set a key callback" do
+    expect(subject.handle).to_not be_nil
+    ptr = glfwSetKeyCallback(subject.handle, subject.key_callback)
+    expect(ptr.to_i).not_to eq 0
+    expect(ptr.to_i).to eq subject.key_callback.to_i
+  end
+
+  it "should not have caused an error" do
+    err = glfwGetError('')
+    expect(err).to eq 0
+  end
+end
+  
+
 RSpec.describe Window do
   before :all do
     @title, @width, @height, @v_sync = "Window Test", 600, 400, true
@@ -23,30 +52,7 @@ RSpec.describe Window do
 
     after(:each) { |example| @window.close if example.exception }
 
-    it "should have set an error callback" do
-      ptr = glfwSetErrorCallback(subject.error_callback)
-      expect(ptr.to_i).not_to eq 0
-      expect(ptr.to_i).to eq subject.error_callback.to_i
-    end
-
-    it "should successfully initiate GLFW" do
-      expect(subject.glfw_init?).to be true
-    end
-
-    it "should have created a window" do
-      expect(subject.handle).to_not be_nil
-    end
-
-    it "should have set a key callback" do
-      ptr = glfwSetKeyCallback(subject.handle, subject.key_callback)
-      expect(ptr.to_i).not_to eq 0
-      expect(ptr.to_i).to eq subject.key_callback.to_i
-    end
-      
-    it "should not have caused an error" do
-      err = glfwGetError('')
-      expect(err).to eq 0
-    end
+    include_examples "init examples"
   end
 
   describe "#close" do
@@ -64,5 +70,13 @@ RSpec.describe Window do
       err = glfwGetError('')
       expect(err).to eq 0
     end
+  end
+
+  describe "#init &block" do
+    before(:all) { @window.init {|wind, key, sccd, act, mod|} }
+    after(:each) { |example| @window.close if example.exception }
+    after(:all) { @window.close if @window.glfw_init?}
+
+    include_examples "init examples"
   end
 end

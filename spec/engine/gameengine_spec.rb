@@ -2,80 +2,55 @@ require 'gameengine'
 
 describe GameEngine do
   before :all do
-    @title = "GameEngine Test"
-    @width = 600
-    @height = 600
-    @v_sync = true
+    @title, @width, @height, @v_sync = "GameEngine Test", 600, 400, true
+    @callback = Proc.new {|wind,key,sccd,act,mod|}
+    @game_engine = GameEngine.new(@title, @width, @height, @v_sync, @callback)
+  end
+  subject { @game_engine }
 
-    @test_logic = double 'logic'
+  it { is_expected.to be_instance_of GameEngine }
 
-    @gameengine = GameEngine.new @title, @width, @height, @v_sync, @test_logic
+  describe "attributes" do
+    it { is_expected.to have_attributes(window: an_instance_of(Window)) }
+    it { is_expected.to have_attributes(key_callback: @callback) }
   end
 
-  after :all do
-    @gameengine.close
+  describe "methods" do
+    it { is_expected.to respond_to(:init) }
+    it { is_expected.to respond_to(:close) }
+    it { is_expected.to respond_to(:run) }
   end
 
-  it "should be an instance of GameEngine" do
-    expect(@gameengine).to be_instance_of GameEngine
+  describe "window attributes" do
+    subject { GameEngine.new(@title, @width, @height, @v_sync, @test_logic).window }
+    it { is_expected.to have_attributes(title: @title) }
+    it { is_expected.to have_attributes(height: @height) }
+    it { is_expected.to have_attributes(width: @width) }
+    it { is_expected.to have_attributes(v_sync: @v_sync) }
   end
 
-  context "checking attributes" do
-    it "should have a window" do
-      expect(@gameengine.window).to_not be_nil
-    end
-
-    context "checking the window" do
-      it "should have the title: #{@title}" do
-        expect(@gameengine.window.title).to eq @title
-      end
-
-      it "should be #{@width} wide" do
-        expect(@gameengine.window.width).to eq @width
-      end
-
-      it "should be #{@height} high" do
-        expect(@gameengine.window.height).to eq @height
-      end
-
-      it "should have v_sync set to #{@v_sync}" do
-        expect(@gameengine.window.v_sync).to eq @v_sync
-      end
-    end
-  end
-
-  context "checking methods" do
-    it "should respond to :init" do
-      expect(@gameengine).to respond_to(:init)
-    end
-
-    it "should respond to :close" do
-      expect(@gameengine).to respond_to(:close)
-    end
-
-    it "should respond to :run" do
-      expect(@gameengine).to respond_to(:run)
-    end
-  end
 
   describe "#init" do
-    it "should call key callbac" do
-      expect(@gameengine.game_logic).to receive(:key_callback)
-      @gameengine.init
+    before(:all) { @game_engine.init }
+    after(:each) { |example| @game_engine.close if example.exception }
+
+    it "should call Window#init with logic key_callback" do
+      expect(@game_engine.window).to receive(:init) do |&block|
+        expect(block).to_not be_nil
+      end
+      @game_engine.init
     end
 
     it "should have initialised the window" do
-      expect(@gameengine.window.handle).to_not be_nil
+      expect(subject.window.handle).to_not be_nil
     end
   end
 
   describe "#close" do
-    before :all do
-      @gameengine.close
-    end
+    before(:all) { @game_engine.close }
 
     it "should have destroyed the window" do
-      expect(@gameengine.window.handle).to be_nil
+      expect(subject.window.handle).to be_nil
     end
   end
 end
