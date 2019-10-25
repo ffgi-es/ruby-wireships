@@ -3,8 +3,12 @@ require 'gameengine'
 describe GameEngine do
   before :all do
     @title, @width, @height, @v_sync = "GameEngine Test", 600, 400, true
-    @callback = Proc.new {|wind,key,sccd,act,mod|}
-    @game_engine = GameEngine.new(@title, @width, @height, @v_sync, @callback)
+    @logic = Class.new do
+      def key_callback
+        Proc.new {|wind,key,sccd,act,mod|}
+      end
+    end.new
+    @game_engine = GameEngine.new(@title, @width, @height, @v_sync, @logic)
   end
   subject { @game_engine }
 
@@ -12,7 +16,7 @@ describe GameEngine do
 
   describe "attributes" do
     it { is_expected.to have_attributes(window: an_instance_of(Window)) }
-    it { is_expected.to have_attributes(key_callback: @callback) }
+    it { is_expected.to have_attributes(game_logic: @logic) }
   end
 
   describe "methods" do
@@ -35,10 +39,11 @@ describe GameEngine do
     after(:each) { |example| @game_engine.close if example.exception }
 
     it "should call Window#init with logic key_callback" do
-      expect(@game_engine.window).to receive(:init) do |&block|
+      expect(subject.game_logic).to receive(:key_callback).and_call_original
+      expect(subject.window).to receive(:init) do |&block|
         expect(block).to_not be_nil
       end
-      @game_engine.init
+      subject.init
     end
 
     it "should have initialised the window" do
