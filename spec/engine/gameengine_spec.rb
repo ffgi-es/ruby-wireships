@@ -7,7 +7,10 @@ describe GameEngine do
       def key_callback
         Proc.new {|wind,key,sccd,act,mod|}
       end
+      def init
+      end
     end.new
+
     @game_engine = GameEngine.new(@title, @width, @height, @v_sync, @logic)
   end
   subject { @game_engine }
@@ -38,11 +41,12 @@ describe GameEngine do
     before(:all) { @game_engine.init }
     after(:each) { |example| @game_engine.close if example.exception }
 
-    it "should call Window#init with logic key_callback" do
+    it "should initialise its attributes" do
       expect(subject.game_logic).to receive(:key_callback).and_call_original
       expect(subject.window).to receive(:init) do |&block|
         expect(block).to_not be_nil
       end
+      expect(subject.game_logic).to receive(:init)
       subject.init
     end
 

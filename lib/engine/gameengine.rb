@@ -11,7 +11,8 @@ class GameEngine
   end
 
   def init
-    window.init &@game_logic.key_callback
+    @window.init &@game_logic.key_callback
+    @game_logic.init
   end
 
   def close
