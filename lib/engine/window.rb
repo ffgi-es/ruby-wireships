@@ -1,9 +1,11 @@
 require 'opengl'
 require 'glfw'
 
-GLFW.load_lib()
+GLFW.load_lib
+OpenGL.load_lib
 
 include GLFW
+include OpenGL
 
 class Window
   attr_reader :title, :height, :width, :v_sync, :handle
@@ -20,6 +22,8 @@ class Window
 
     @glfw_init = glfwInit() == GLFW_TRUE
 
+    set_window_hints
+
     @handle = glfwCreateWindow(@width, @height, @title, nil, nil)
 
     if block_given?
@@ -27,6 +31,8 @@ class Window
     else
       set_key_callback
     end
+
+    set_gl_options
   end
 
   def glfw_init?
@@ -56,5 +62,27 @@ class Window
       yield wind, key, sccd, act, mod
     end
     glfwSetKeyCallback(@handle, @key_callback)
+  end
+
+  def set_window_hints
+    glfwDefaultWindowHints()
+    glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE)
+    glfwWindowHint(GLFW_FLOATING, GLFW_TRUE)
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3)
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2)
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE)
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE)
+  end
+
+  def set_gl_options
+    glfwMakeContextCurrent(@handle)
+    glfwShowWindow(@handle)
+
+    puts "OpenGl Version: #{glGetString(GL_VERSION)}"
+    
+    glClearColor(0.0, 0.0, 0.0, 0.0)
+    glEnable(GL_BLEND)
+    glDisable(GL_CULL_FACE)
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
   end
 end
