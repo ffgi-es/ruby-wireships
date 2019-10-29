@@ -119,4 +119,12 @@ describe ShaderProgram do
       end
     end
   end
+
+  describe "#clean_up" do
+    it "should call glDeleteProgram" do
+      prog = ShaderProgram.new
+      prog.clean_up
+      expect(prog.program_id).to eq 0
+    end
+  end
 end
