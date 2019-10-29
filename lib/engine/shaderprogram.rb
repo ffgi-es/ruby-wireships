@@ -24,9 +24,11 @@ class ShaderProgram
   end
 
   def bind
+    glUseProgram(@program_id)
   end
 
   def unbind
+    glUseProgram(0)
   end
 
   def clean_up
