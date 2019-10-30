@@ -8,10 +8,11 @@ class ShaderProgramError < StandardError
 end
 
 class ShaderProgram
-  attr_reader :program_id
+  attr_reader :program_id, :uniforms
 
   def initialize
     @program_id = glCreateProgram()
+    @uniforms = {}
   end
 
   def build_program(sources)
@@ -21,6 +22,14 @@ class ShaderProgram
     check_error(@program_id, GL_LINK_STATUS)
     @shaders.each { |shader| glDetachShader(@program_id, shader) }
     check_error(@program_id, GL_VALIDATE_STATUS)
+  end
+
+  def create_uniforms uniform_names
+    uniform_names.each do |name|
+      location = glGetUniformLocation(@program_id, name)
+      raise ShaderProgramError, "Uniform: #{name} not found" if location < 0
+      uniforms[name] = location
+    end
   end
 
   def bind

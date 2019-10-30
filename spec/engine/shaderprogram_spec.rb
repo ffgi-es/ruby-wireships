@@ -33,6 +33,12 @@ describe ShaderProgram do
     raise e
   end
 
+  def create_with_uniforms uniforms
+    prog = create_working_program
+    prog.create_uniforms uniforms
+    return prog
+  end
+
   before :all do
     @window = Window.new "ShaderProgram Test", 600, 600, true
     @window.init
@@ -57,6 +63,7 @@ describe ShaderProgram do
 
   describe "attributes" do
     it { is_expected.to have_attributes(program_id: a_value > 0) }
+    it { is_expected.to have_attributes(uniforms: {}) }
   end
 
   describe "methods" do
@@ -64,6 +71,7 @@ describe ShaderProgram do
     it { is_expected.to respond_to(:bind) }
     it { is_expected.to respond_to(:unbind) }
     it { is_expected.to respond_to(:clean_up) }
+    it { is_expected.to respond_to(:create_uniforms) }
   end
 
   describe "#build_program" do
@@ -134,6 +142,19 @@ describe ShaderProgram do
       prog = ShaderProgram.new
       prog.clean_up
       expect(prog.program_id).to eq 0
+    end
+  end
+
+  describe "#create_uniforms" do
+    it "should create a hash of uniform locations" do
+      prog = create_with_uniforms ["PVWMatrix"]
+      expect(prog.uniforms.size).to eq 1
+      expect(prog.uniforms["PVWMatrix"]).to_not be_nil
+    end
+
+    it "should throw an error if uniform doesn't exist" do
+      expect{ create_with_uniforms ["not_exist"] }.to raise_error(
+        ShaderProgramError, /Uniform:/)
     end
   end
 
