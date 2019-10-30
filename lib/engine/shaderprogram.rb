@@ -41,6 +41,20 @@ class ShaderProgram
 
   def set_uniforms uniforms
     uniforms.each do |name, value|
+      unless @uniforms[name][:location]
+        raise ShaderProgramError, "Uniform: #{name} doesn't exist" 
+      end
+      case @uniforms[name][:type]
+      when GL_FLOAT_MAT2
+        value_buf = value.pack('FFFF')
+        glUniformMatrix2fv(@uniforms[name][:location], 1, GL_FALSE, value_buf)
+      when GL_FLOAT_VEC2
+        glUniform2f(@uniforms[name][:location], value[0], value[1])
+      when GL_FLOAT
+        glUniform1f(@uniforms[name][:location], value)
+      when GL_INT
+        glUniform1i(@uniforms[name][:location], value)
+      end
     end
   end
 

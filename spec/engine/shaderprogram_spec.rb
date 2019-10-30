@@ -10,10 +10,13 @@ describe ShaderProgram do
           layout (location=1) in vec3 colour;
           out vec4 fColour;
           uniform mat2 PVWMatrix;
+          uniform vec2 offset;
+          uniform float colourShift;
+          uniform int screenwidth;
           void main() {
-            vec2 pos = PVWMatrix * position;
-            gl_Position = vec4(pos, 0.0, 1.0);
-            fColour = vec4(colour, 1.0);
+            vec2 pos = PVWMatrix * (offset + position);
+            gl_Position = vec4(pos, screenwidth, 1.0);
+            fColour = vec4(colour * colourShift, 1.0);
           }
     SRC
     fragment_source = <<~SRC
@@ -75,6 +78,7 @@ describe ShaderProgram do
     it { is_expected.to respond_to(:unbind) }
     it { is_expected.to respond_to(:clean_up) }
     it { is_expected.to respond_to(:create_uniforms) }
+    it { is_expected.to respond_to(:set_uniforms) }
   end
 
   describe "#build_program" do
@@ -162,7 +166,114 @@ describe ShaderProgram do
 
     it "should throw an error if uniform doesn't exist" do
       expect{ create_with_uniforms ["not_exist"] }.to raise_error(
-        ShaderProgramError, /Uniform:/)
+        ShaderProgramError, /Uniform:.*not found/)
+    end
+  end
+
+  describe "#set_uniforms" do
+    def create_with_uniform_and_set name, value
+      prog = create_with_uniforms [name]
+      prog.bind
+      prog.set_uniforms name => value
+      return prog
+    rescue StandardError => e
+      prog.clean_up if prog
+      raise e
+    end
+
+    it "should set uniforms when given a hash of values for a mat2" do
+      begin
+        prog = create_with_uniform_and_set "PVWMatrix", [1,2,3,4]
+
+        return_buf = ' ' * 4 * 4
+        glGetUniformfv(prog.program_id, prog.uniforms["PVWMatrix"][:location], return_buf)
+        return_values = return_buf.unpack('F*')
+        expect(return_values).to eq [1,2,3,4]
+      ensure
+        prog.clean_up if prog
+      end
+    end
+
+    it "should set uniform when given a hash of values for vec2" do
+      begin
+        prog = create_with_uniform_and_set "offset", [1,2]
+
+        return_buf = ' ' * 4 * 2
+        glGetUniformfv(prog.program_id, prog.uniforms["offset"][:location], return_buf)
+        return_value = return_buf.unpack('F*')
+        expect(return_value).to eq [1,2]
+      ensure
+        prog.clean_up if prog
+      end
+    end
+
+    it "should set uniform when given a hash of values for a float" do
+      begin
+        prog = create_with_uniform_and_set "colourShift", 1
+
+        return_buf = ' ' * 4
+        glGetUniformfv(prog.program_id, 
+                       prog.uniforms["colourShift"][:location], return_buf)
+        return_value = return_buf.unpack('F').first
+        expect(return_value).to eq 1
+      ensure
+        prog.clean_up if prog
+      end
+    end
+
+    it "should set uniform when given a hash of values for an int" do
+      begin
+        prog = create_with_uniform_and_set "screenwidth", 300
+
+        return_buf = ' ' * 4
+        glGetUniformiv(prog.program_id,
+                       prog.uniforms["screenwidth"][:location], return_buf)
+        return_value = return_buf.unpack('L').first
+        expect(return_value).to eq 300
+      ensure
+        prog.clean_up if prog
+      end
+    end
+
+    it "should set all uniforms in the hash" do
+      begin
+        prog = create_with_uniforms ["PVWMatrix", "offset", "screenwidth"]
+        prog.bind
+        uniforms = { "PVWMatrix" => [12,13,14,15],
+                     "offset" => [4,7],
+                     "screenwidth" => 234 }
+        prog.set_uniforms uniforms
+
+        matrix_buf = ' ' * 4 * 4
+        vec2_buf = ' ' * 4 * 2
+        int_buf = ' ' * 4
+        glGetUniformfv(prog.program_id,
+                       prog.uniforms["PVWMatrix"][:location], matrix_buf)
+        glGetUniformfv(prog.program_id,
+                       prog.uniforms["offset"][:location], vec2_buf)
+        glGetUniformiv(prog.program_id,
+                       prog.uniforms["screenwidth"][:location], int_buf)
+        matrix_values = matrix_buf.unpack('FFFF')
+        vec2_values = vec2_buf.unpack('FF')
+        int_value = int_buf.unpack('L').first
+
+        expect(matrix_values).to eq [12,13,14,15]
+        expect(vec2_values).to eq [4,7]
+        expect(int_value).to eq 234
+      ensure
+        prog.clean_up if prog
+      end
+    end
+
+    it "should raise an error if a uniform doesn't exist" do
+      begin
+        prog = create_with_uniforms ["PVWMatrix"]
+        prog.bind
+        expect{ prog.set_uniforms "pvwmatrix" => [2,3,4,5] }.to raise_error(
+          ShaderProgramError, /Uniform:.*doesn't exist/)
+      ensure
+        prog.clean_up if prog
+      end
     end
   end
 
