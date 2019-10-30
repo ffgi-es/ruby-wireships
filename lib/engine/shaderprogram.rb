@@ -12,7 +12,7 @@ class ShaderProgram
 
   def initialize
     @program_id = glCreateProgram()
-    @uniforms = {}
+    @uniforms = Hash.new { |hash, key| hash[key] = {} }
   end
 
   def build_program(sources)
@@ -28,7 +28,19 @@ class ShaderProgram
     uniform_names.each do |name|
       location = glGetUniformLocation(@program_id, name)
       raise ShaderProgramError, "Uniform: #{name} not found" if location < 0
-      uniforms[name] = location
+      uniforms[name][:location] = location
+
+      type_buf = ' ' * 4
+      length_buf = ' ' * 4
+      size_buf = ' ' * 4
+      glGetActiveUniform(@program_id, location, 0, length_buf, size_buf, type_buf, nil)
+      type_value = type_buf.unpack('L').first
+      uniforms[name][:type] = type_value
+    end
+  end
+
+  def set_uniforms uniforms
+    uniforms.each do |name, value|
     end
   end
 

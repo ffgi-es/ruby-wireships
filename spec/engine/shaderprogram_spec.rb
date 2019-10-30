@@ -37,6 +37,9 @@ describe ShaderProgram do
     prog = create_working_program
     prog.create_uniforms uniforms
     return prog
+  rescue StandardError => e
+    prog.clean_up
+    raise e
   end
 
   before :all do
@@ -100,7 +103,7 @@ describe ShaderProgram do
         expect{ prog.build_program(shaders) }.to raise_error(
           ShaderProgramError, /compiling/)
       ensure
-        prog.clean_up
+        prog.clean_up if prog
       end
     end
 
@@ -132,7 +135,7 @@ describe ShaderProgram do
         expect{ prog.build_program(shaders) }.to raise_error(
           ShaderProgramError, /linking/)
       ensure
-        prog.clean_up
+        prog.clean_up if prog
       end
     end
   end
@@ -147,9 +150,14 @@ describe ShaderProgram do
 
   describe "#create_uniforms" do
     it "should create a hash of uniform locations" do
-      prog = create_with_uniforms ["PVWMatrix"]
-      expect(prog.uniforms.size).to eq 1
-      expect(prog.uniforms["PVWMatrix"]).to_not be_nil
+      begin
+        prog = create_with_uniforms ["PVWMatrix"]
+        expect(prog.uniforms.size).to eq 1
+        expect(prog.uniforms["PVWMatrix"][:location]).to_not be_nil
+        expect(prog.uniforms["PVWMatrix"][:type]).to eq GL_FLOAT_MAT2
+      ensure
+        prog.clean_up if prog
+      end
     end
 
     it "should throw an error if uniform doesn't exist" do
@@ -169,7 +177,7 @@ describe ShaderProgram do
         return_value = return_buf.unpack('L').first
         expect(return_value).to eq prog.program_id
       ensure
-        prog.clean_up
+        prog.clean_up if prog
       end
     end
   end
@@ -186,7 +194,7 @@ describe ShaderProgram do
         return_value = return_buf.unpack('L').first
         expect(return_value).to eq 0
       ensure
-        prog.clean_up
+        prog.clean_up if prog
       end
     end
   end
