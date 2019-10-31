@@ -77,7 +77,11 @@ class ShaderProgram
 
   def create_shader type, source
     shader_id = glCreateShader(type)
-    raise ShaderProgramError, "Unable to create shader: #{type}" if shader_id == 0
+    if shader_id == 0
+      types = {GL_VERTEX_SHADER => "VERTEX", GL_GEOMETRY_SHADER => "GEOMETRY",
+               GL_FRAGMENT_SHADER => "FRAGMENT"}
+      raise ShaderProgramError, "Unable to create shader: #{types[type]}"
+    end
 
     glShaderSource(shader_id, 1, [source].pack('p'), [source.size].pack('I'))
     glCompileShader(shader_id)
